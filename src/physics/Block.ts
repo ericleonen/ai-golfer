@@ -1,5 +1,5 @@
 import Entity from "./Entity";
-import Vector2d from "./Vector2d";
+import Vector2d, { VectorObject } from "./Vector2d";
 
 class Block extends Entity{
     pos: Vector2d;
@@ -7,7 +7,7 @@ class Block extends Entity{
 
     vertices: Array<Vector2d>;
 
-    constructor({ x, y }: { x: number, y: number}, { height, width }: { height: number, width: number }) {
+    constructor({ x, y }: VectorObject, { height, width }: VectorObject) {
         super();
         
         this.pos = new Vector2d(x, y);
@@ -16,9 +16,9 @@ class Block extends Entity{
         // in clockwise order
         this.vertices = [
             this.pos,
-            this.pos.add(this.dims.project('x')),
+            this.pos.add(this.dims.projectUnit('x')),
             this.pos.add(this.dims),
-            this.pos.add(this.dims.project('y'))
+            this.pos.add(this.dims.projectUnit('y'))
         ];
     }
 

@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import Ball from "../physics/Ball";
 import Block from "../physics/Block";
 import Entity from "../physics/Entity";
 import Vector2d from "../physics/Vector2d";
@@ -6,15 +7,20 @@ import Vector2d from "../physics/Vector2d";
 const Game = () => {
     const canvas = useRef<HTMLCanvasElement | any>();
 
-
     const init = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
         const ground = new Block(
             { x: 0, y: canvas.height - 50 },
             { width: canvas.width, height: 50 }
         );
+
+        const ball = new Ball(
+            { x: 100, y: 100 },
+            10
+        );
         
         const entities = [
-            ground
+            ground,
+            ball
         ];
     
         update(entities, canvas, ctx);

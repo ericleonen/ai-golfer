@@ -11,10 +11,17 @@ class Vector2d {
         this.magnitude = Math.sqrt(x * x + y * y);
     }
 
-    project(d: 'x' | 'y') {
+    projectUnit(d: 'x' | 'y') {
         return d === 'x' ?
             new Vector2d(this.x, 0) :
             new Vector2d(0, this.y);
+    }
+
+    projectOnto(v: Vector2d) {
+        const projectedMagnitude = this.dot(v) / v.magnitude;
+        const unitV = v.scalarMultiply(1 / v.magnitude);
+
+        return unitV.scalarMultiply(projectedMagnitude);
     }
 
     add(v: Vector2d) {
@@ -25,9 +32,17 @@ class Vector2d {
         return new Vector2d(this.x - v.x, this.y - v.y);
     }
 
+    scalarMultiply(c: number) {
+        return new Vector2d(this.x * c, this.y * c);
+    }
+
     dot(v: Vector2d) {
         return this.x * v.x + this.y * v.y;
     }
 };
 
 export default Vector2d;
+
+export interface VectorObject {
+    [key: string]: number
+};
