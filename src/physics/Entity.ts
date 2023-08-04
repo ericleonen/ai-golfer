@@ -1,12 +1,10 @@
 class Entity {
-    ctx: CanvasRenderingContext2D;
-
-    constructor(ctx: CanvasRenderingContext2D) {
-        this.ctx = ctx;
+    constructor() {
+        return;
     }
 
-    draw() { return };
-    update() { this.draw() };
+    draw(ctx: CanvasRenderingContext2D) { return };
+    update(ctx: CanvasRenderingContext2D) { this.draw(ctx) };
 };
 
 export default Entity;

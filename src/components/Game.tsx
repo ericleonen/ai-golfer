@@ -1,29 +1,43 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import Block from "../physics/Block";
+import Entity from "../physics/Entity";
+import Vector2d from "../physics/Vector2d";
 
 const Game = () => {
-    const [canvas, setCanvas] = useState<HTMLCanvasElement>();
-    const [ctx, setCtx] = useState<CanvasRenderingContext2D>();
+    const canvas = useRef<HTMLCanvasElement | any>();
+
+
+    const init = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+        const ground = new Block(
+            { x: 0, y: canvas.height - 50 },
+            { width: canvas.width, height: 50 }
+        );
+        
+        const entities = [
+            ground
+        ];
+    
+        update(entities, canvas, ctx);
+    };
+
+    const update = (entities: Array<Entity>, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+        ctx.clearRect(0, 0, canvas.height, canvas.width);
+        entities.forEach(entity => entity.update(ctx));
+        
+        requestAnimationFrame(() => update(entities, canvas, ctx));
+    };
 
     useEffect(() => {
-        const htmlCanvas = document.getElementById('canvas');
+        if (!(canvas.current instanceof HTMLCanvasElement)) return;
+        const ctx = canvas.current.getContext('2d');
 
-        if (htmlCanvas instanceof HTMLCanvasElement) {
-            setCanvas(htmlCanvas);
+        if (!(ctx instanceof CanvasRenderingContext2D)) return;
 
-            const htmlCtx = htmlCanvas.getContext('2d');
-            if (htmlCtx instanceof CanvasRenderingContext2D)
-                setCtx(htmlCtx);
-        }
-    });
-
-    useEffect(() => {
-        if (canvas && ctx) {
-            
-        }
-    }, [canvas, ctx]);
+        init(canvas.current, ctx);
+    }, [canvas, init]);
 
     return (
-        <canvas id="canvas" height="500" width="800" />
+        <canvas id="canvas" height="500" width="800" ref={canvas}/>
     )
 };
 

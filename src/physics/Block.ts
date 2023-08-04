@@ -7,25 +7,25 @@ class Block extends Entity{
 
     vertices: Array<Vector2d>;
 
-    constructor(pos: Vector2d, dims: Vector2d, ctx: CanvasRenderingContext2D) {
-        super(ctx);
+    constructor({ x, y }: { x: number, y: number}, { height, width }: { height: number, width: number }) {
+        super();
         
-        this.pos = pos;
-        this.dims = dims;
+        this.pos = new Vector2d(x, y);
+        this.dims = new Vector2d(width, height);
 
         // in clockwise order
         this.vertices = [
-            pos,
-            pos.add(dims.project('x')),
-            pos.add(dims),
-            pos.add(dims.project('y'))
+            this.pos,
+            this.pos.add(this.dims.project('x')),
+            this.pos.add(this.dims),
+            this.pos.add(this.dims.project('y'))
         ];
     }
 
-    draw() {
-        this.ctx.beginPath();
-        this.ctx.rect(this.pos.x, this.pos.y, this.dims.x, this.dims.y);
-        this.ctx.fill();
+    draw(ctx: CanvasRenderingContext2D) {
+        ctx.beginPath();
+        ctx.rect(this.pos.x, this.pos.y, this.dims.x, this.dims.y);
+        ctx.fill();
     }
 };
 
