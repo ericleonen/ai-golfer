@@ -16,8 +16,14 @@ const Game = () => {
         }
     });
 
+    useEffect(() => {
+        if (canvas && ctx) {
+            
+        }
+    }, [canvas, ctx]);
+
     return (
-        <canvas id="canvas" />
+        <canvas id="canvas" height="500" width="800" />
     )
 };
 
