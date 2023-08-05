@@ -10,6 +10,7 @@ class Ball extends Entity {
     vel: Vector2d;
     accel: Vector2d;
     maxSpeed: number;
+    elasticity: number;
 
     constructor({ x, y }: VectorObject, radius: number) {
         super();
@@ -17,13 +18,15 @@ class Ball extends Entity {
         this.pos = new Vector2d(x, y);
         this.radius = radius;
 
-        this.vel = new Vector2d(40, -40);
-        this.accel = new Vector2d(0, .5);
-        this.maxSpeed = 10;
+        this.vel = new Vector2d(5, -10);
+        this.accel = new Vector2d(0, .1);
+        this.maxSpeed = 8;
+        this.elasticity = 0.3;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
+        ctx.lineWidth = 3;
         ctx.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI);
         ctx.stroke();
     }
@@ -57,15 +60,11 @@ class Ball extends Entity {
 
                 const normal = v2.subtract(v2onV1);
 
-                const dist = normal.magnitude;
-
-
-                if (dist <= this.radius) {
+                if (normal.magnitude <= this.radius) {
                     // collision
-                    const normalUnit = normal.scalarMultiply(1 / dist);
                     const velOnV1 = this.vel.projectOnto(v1);
-
-                    this.vel = velOnV1.subtract(this.vel).add(velOnV1);
+                    this.vel = velOnV1.subtract(this.vel).add(velOnV1).scalarMultiply(this.elasticity);
+                    this.elasticity *= this.elasticity;
                 }
             }
         });
