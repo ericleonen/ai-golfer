@@ -1,4 +1,6 @@
+import Block from "./Block";
 import Entity from "./Entity";
+import { sameSign } from "./utils";
 import Vector2d, { VectorObject } from "./Vector2d";
 
 class Ball extends Entity {
@@ -7,6 +9,7 @@ class Ball extends Entity {
 
     vel: Vector2d;
     accel: Vector2d;
+    maxSpeed: number;
 
     constructor({ x, y }: VectorObject, radius: number) {
         super();
@@ -14,8 +17,9 @@ class Ball extends Entity {
         this.pos = new Vector2d(x, y);
         this.radius = radius;
 
-        this.vel = new Vector2d(0, 0);
-        this.accel = new Vector2d(0, -5);
+        this.vel = new Vector2d(40, -40);
+        this.accel = new Vector2d(0, .5);
+        this.maxSpeed = 10;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -24,11 +28,47 @@ class Ball extends Entity {
         ctx.stroke();
     }
 
-    update(ctx: CanvasRenderingContext2D) {
+    update(ctx: CanvasRenderingContext2D, gameInfo: { entities: Array<Entity> }) {
+        this.draw(ctx);
+
+        const { entities } = gameInfo;
+
         this.pos = this.pos.add(this.vel);
         this.vel = this.vel.add(this.accel);
 
-        this.draw(ctx);
+        if (this.vel.magnitude > this.maxSpeed) {
+            this.vel = this.vel.scalarMultiply(this.maxSpeed / this.vel.magnitude);
+        }
+
+        entities.forEach(entity => {
+            if (!(entity instanceof Block)) return;
+
+            for (let i = 0; i < entity.vertices.length; i++) {
+                const p1 = entity.vertices[i];
+                const p2 = entity.vertices[i < entity.vertices.length - 1 ? i + 1 : 0];
+
+                const v1 = p2.subtract(p1);
+                const v2 = this.pos.subtract(p1);
+
+                const v2onV1 = v2.projectOnto(v1);
+
+                // check if closest point is within v1
+                if (v2onV1.magnitude > v1.magnitude || !sameSign(v2onV1.x, v1.x) || !sameSign(v2onV1.y, v1.y)) continue;
+
+                const normal = v2.subtract(v2onV1);
+
+                const dist = normal.magnitude;
+
+
+                if (dist <= this.radius) {
+                    // collision
+                    const normalUnit = normal.scalarMultiply(1 / dist);
+                    const velOnV1 = this.vel.projectOnto(v1);
+
+                    this.vel = velOnV1.subtract(this.vel).add(velOnV1);
+                }
+            }
+        });
     }
 };
 

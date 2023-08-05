@@ -15,7 +15,7 @@ const Game = () => {
 
         const ball = new Ball(
             { x: 100, y: 100 },
-            10
+            5
         );
         
         const entities = [
@@ -27,8 +27,16 @@ const Game = () => {
     };
 
     const update = (entities: Array<Entity>, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
-        ctx.clearRect(0, 0, canvas.height, canvas.width);
-        entities.forEach(entity => entity.update(ctx));
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        entities.forEach(entity => {
+            if (entity instanceof Ball) {
+                entity.update(
+                    ctx, 
+                    { entities: entities.filter(entity => entity instanceof Block) }
+                );
+            }
+            else entity.update(ctx);
+        });
         
         requestAnimationFrame(() => update(entities, canvas, ctx));
     };
