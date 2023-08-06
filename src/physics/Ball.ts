@@ -10,7 +10,6 @@ class Ball extends Entity {
     vel: Vector2d;
     accel: Vector2d;
     maxSpeed: number;
-    elasticity: number;
 
     constructor({ x, y }: VectorObject, radius: number) {
         super();
@@ -18,10 +17,9 @@ class Ball extends Entity {
         this.pos = new Vector2d(x, y);
         this.radius = radius;
 
-        this.vel = new Vector2d(5, -10);
-        this.accel = new Vector2d(0, .1);
-        this.maxSpeed = 8;
-        this.elasticity = 0.3;
+        this.vel = new Vector2d(0, 10);
+        this.accel = new Vector2d(0, .2);
+        this.maxSpeed = 100;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -32,8 +30,6 @@ class Ball extends Entity {
     }
 
     update(ctx: CanvasRenderingContext2D, gameInfo: { entities: Array<Entity> }) {
-        this.draw(ctx);
-
         const { entities } = gameInfo;
 
         this.pos = this.pos.add(this.vel);
@@ -61,13 +57,19 @@ class Ball extends Entity {
                 const normal = v2.subtract(v2onV1);
 
                 if (normal.magnitude <= this.radius) {
+                    console.log(this.vel.magnitude);
+
+                    // making it so ball doesn't enter entities!
+                    this.pos = this.pos.subtract(this.vel.scalarMultiply((this.radius - normal.magnitude) / this.vel.magnitude));
+
                     // collision
                     const velOnV1 = this.vel.projectOnto(v1);
-                    this.vel = velOnV1.subtract(this.vel).add(velOnV1).scalarMultiply(this.elasticity);
-                    this.elasticity *= this.elasticity;
+                    this.vel = velOnV1.subtract(this.vel.subtract(this.accel)).add(velOnV1);
                 }
             }
         });
+
+        this.draw(ctx);
     }
 };
 

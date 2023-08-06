@@ -14,8 +14,8 @@ const Game = () => {
         );
 
         const ball = new Ball(
-            { x: 100, y: canvas.height - 60 },
-            10
+            { x: 100, y: canvas.height - 60 - 300 },
+            20
         );
         
         const entities = [
