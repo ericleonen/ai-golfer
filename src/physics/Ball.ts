@@ -1,6 +1,6 @@
 import Block from "./Block";
 import Entity from "./Entity";
-import { sameSign } from "./utils";
+import { basicallyZero, sameSign, sign } from "./utils";
 import Vector2d, { VectorObject } from "./Vector2d";
 
 class Ball extends Entity {
@@ -9,7 +9,6 @@ class Ball extends Entity {
 
     vel: Vector2d;
     accel: Vector2d;
-    maxSpeed: number;
 
     constructor({ x, y }: VectorObject, radius: number) {
         super();
@@ -17,9 +16,8 @@ class Ball extends Entity {
         this.pos = new Vector2d(x, y);
         this.radius = radius;
 
-        this.vel = new Vector2d(0, 10);
-        this.accel = new Vector2d(0, .2);
-        this.maxSpeed = 100;
+        this.vel = new Vector2d(2, -10);
+        this.accel = new Vector2d(0, .3);
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -34,10 +32,6 @@ class Ball extends Entity {
 
         this.pos = this.pos.add(this.vel);
         this.vel = this.vel.add(this.accel);
-
-        if (this.vel.magnitude > this.maxSpeed) {
-            this.vel = this.vel.scalarMultiply(this.maxSpeed / this.vel.magnitude);
-        }
 
         entities.forEach(entity => {
             if (!(entity instanceof Block)) return;
@@ -57,10 +51,28 @@ class Ball extends Entity {
                 const normal = v2.subtract(v2onV1);
 
                 if (normal.magnitude <= this.radius) {
-                    console.log(this.vel.magnitude);
+                    // fix over-pos
+                    const oppVelUnit = this.vel.scalarMultiply(-1 / this.vel.magnitude);
+                    const z = oppVelUnit.projectOnto(normal);
+                    const a = this.vel.scalarMultiply((this.radius - normal.magnitude) / this.vel.magnitude);
 
-                    // making it so ball doesn't enter entities!
-                    this.pos = this.pos.subtract(this.vel.scalarMultiply((this.radius - normal.magnitude) / this.vel.magnitude));
+                    const newPos = this.pos.subtract(oppVelUnit.scalarMultiply(
+                        !basicallyZero(z.x) ? a.x / z.x : a.y / z.y
+                    ));
+                    const displacement = newPos.subtract(this.pos);
+                    this.pos = newPos;
+
+                    // fix over-vel
+                    this.vel.y = Math.sqrt(
+                        Math.abs(
+                            Math.pow(this.vel.y, 2) + 2 * this.accel.y * displacement.y
+                        )
+                    ) * sign(this.vel.y);
+                    this.vel.x = Math.sqrt(
+                        Math.abs(
+                            Math.pow(this.vel.x, 2) + 2 * this.accel.x * displacement.x
+                        )
+                    ) * sign(this.vel.x);
 
                     // collision
                     const velOnV1 = this.vel.projectOnto(v1);

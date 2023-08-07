@@ -13,13 +13,19 @@ const Game = () => {
             { width: canvas.width, height: 50 }
         );
 
+        const wall = new Block(
+            { x: 800, y: canvas.height - 50 - 200 },
+            { width: 100, height: 200 }
+        );
+
         const ball = new Ball(
-            { x: 100, y: canvas.height - 60 - 300 },
+            { x: 100, y: canvas.height - 60 },
             20
         );
         
         const entities = [
             ground,
+            wall,
             ball
         ];
     
