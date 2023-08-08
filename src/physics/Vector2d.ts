@@ -8,7 +8,7 @@ class Vector2d {
         this.x = x;
         this.y = y;
 
-        this.magnitude = Math.sqrt(x * x + y * y);
+        this.magnitude = (() => Math.sqrt(this.x * this.x + this.y * this.y))();
     }
 
     projectUnit(d: 'x' | 'y') {

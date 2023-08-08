@@ -2,30 +2,21 @@ import { useEffect, useRef, useState } from "react";
 import Ball from "../physics/Ball";
 import Block from "../physics/Block";
 import Entity from "../physics/Entity";
-import Vector2d from "../physics/Vector2d";
+import { createHoleBase } from "../physics/HoleBase";
 
 const Game = () => {
     const canvas = useRef<HTMLCanvasElement | any>();
 
     const init = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
-        const ground = new Block(
-            { x: 0, y: canvas.height - 50 },
-            { width: canvas.width, height: 50 }
-        );
-
-        const wall = new Block(
-            { x: 800, y: canvas.height - 50 - 200 },
-            { width: 100, height: 200 }
-        );
+        const holeBase = createHoleBase({ x: 760, y: canvas.height - 100 }, canvas);
 
         const ball = new Ball(
-            { x: 100, y: canvas.height - 60 },
-            20
+            { x: 100, y: canvas.height - 500 },
+            10
         );
         
         const entities = [
-            ground,
-            wall,
+            ...holeBase,
             ball
         ];
     
