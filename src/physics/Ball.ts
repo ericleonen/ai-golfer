@@ -18,7 +18,7 @@ class Ball extends Entity {
         this.pos = new Vector2d(x, y);
         this.radius = radius;
 
-        this.vel = new Vector2d(5.3, 0);
+        this.vel = new Vector2d(5.55, 0);
         this.accel = new Vector2d(0, .15);
         this.elasticity = 0.5;
     }
@@ -70,6 +70,8 @@ class Ball extends Entity {
             const normal = v2.subtract(v2onV1);
 
             if (normal.magnitude <= this.radius) {
+                console.log(this.vel);
+
                 // fix over-pos
                 const oppVelUnit = this.vel.scalarMultiply(-1 / this.vel.magnitude);
                 const z = oppVelUnit.projectOnto(normal);

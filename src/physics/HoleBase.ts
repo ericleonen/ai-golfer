@@ -1,7 +1,8 @@
 import Block from "./Block";
 import { VectorObject } from "./Vector2d";
 
-const HOLE_WIDTH: number = 50;
+const HOLE_WIDTH: number = 40;
+const HOLE_HEIGHT: number = 50;
 
 export const createHoleBase = ({ x, y }: VectorObject, canvas: HTMLCanvasElement) => {
     const left = new Block(
@@ -14,5 +15,10 @@ export const createHoleBase = ({ x, y }: VectorObject, canvas: HTMLCanvasElement
         { height: canvas.height - y, width: canvas.width - x - HOLE_WIDTH / 2 }
     );
 
-    return [left, right];
+    const bottom = new Block(
+        { x: x - HOLE_WIDTH / 2, y: y + HOLE_HEIGHT },
+        { height: HOLE_HEIGHT, width: HOLE_WIDTH }
+    )
+
+    return [left, right, bottom];
 };
