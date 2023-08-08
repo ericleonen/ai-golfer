@@ -14,6 +14,11 @@ const Game = () => {
             { x: 100, y: canvas.height - 500 },
             10
         );
+
+        const wall = new Block(
+            { x: 720, y: canvas.height - 100 - 500 },
+            { height: 500, width: 100 }
+        );
         
         const entities = [
             ...holeBase,
