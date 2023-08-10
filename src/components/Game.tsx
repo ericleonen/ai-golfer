@@ -5,7 +5,7 @@ import Entity from "../physics/Entity";
 import { createHoleBase } from "../physics/HoleBase";
 
 const COURSE_HEIGHT: number = 100;
-const BALL_RADIUS: number = 10;
+const BALL_RADIUS: number = 15;
 
 const Game = () => {
     const canvas = useRef<HTMLCanvasElement | any>();

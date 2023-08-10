@@ -12,3 +12,5 @@ export const sign = (x: number) => {
     if (x === 0) return 0;
     else return x / Math.abs(x);
 }
+
+export const toRad = (degrees: number) => degrees * Math.PI / 180;

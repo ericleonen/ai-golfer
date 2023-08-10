@@ -1,7 +1,7 @@
 import Block from "./Block";
 import Entity from "./Entity";
 import { HOLE_WIDTH } from "./HoleBase";
-import { basicallyZero, sameSign, sign } from "./utils";
+import { basicallyZero, sameSign, sign, toRad } from "./utils";
 import Vector2d, { VectorObject } from "./Vector2d";
 
 class Ball extends Entity {
@@ -13,6 +13,7 @@ class Ball extends Entity {
     accel: Vector2d;
 
     elasticity: number;
+    maxSpeed: number;
 
     holed: boolean;
 
@@ -23,11 +24,21 @@ class Ball extends Entity {
         this.radius = radius;
         this.holePos = holePos;
 
-        this.vel = new Vector2d(5.4, -18);
+        this.vel = new Vector2d(0, 0);
         this.accel = new Vector2d(0, .15);
         this.elasticity = 0.5;
+        this.maxSpeed = radius * 2;
 
         this.holed = false;
+
+        this.launch(13.9, 90);
+    }
+
+    launch(speed: number, theta: number) {
+        theta = toRad(theta);
+
+        this.vel.x = Math.cos(theta) * speed;
+        this.vel.y = -Math.sin(theta) * speed;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
@@ -77,21 +88,18 @@ class Ball extends Entity {
             const normal = v2.subtract(v2onV1);
 
             if (normal.magnitude <= this.radius) {
-                this.pos.print('orig pos')
                 // fix over-pos
-                const oppVelUnit = this.vel.scalarMultiply(-1 / this.vel.magnitude);
-                const z = oppVelUnit.projectOnto(normal);
-                const a = this.vel.scalarMultiply((this.radius + normal.magnitude * sign(this.vel.dot(normal))) / this.vel.magnitude);
-                const c = !basicallyZero(z.x) ? a.x / z.x : a.y / z.y;
-                const o = oppVelUnit.scalarMultiply(c);
-                
-                const oldPos = new Vector2d(this.pos.x, this.pos.y);
+                const a = normal.scalarMultiply((this.radius + normal.magnitude * Math.sign(normal.dot(this.vel))) / normal.magnitude);
+                const s = (Math.pow(a.x, 2) + Math.pow(a.y, 2)) / (a.x * this.vel.x + a.y * this.vel.y);
+                const displacement = this.vel.scalarMultiply(s);
 
-                this.pos = this.pos.subtract(o);
-                this.pos.x = Math.round(this.pos.x);
-                this.pos.y = Math.round(this.pos.y);
+                this.pos = this.pos.add(displacement);
 
-                const displacement = this.pos.subtract(oldPos);
+                if (displacement.magnitude > 5) {
+                    normal.print('normal');
+                    a.print('a');
+                    displacement.print('displacement');
+                }
 
                 // fix over-vel
                 this.vel.y = Math.sqrt(
@@ -113,13 +121,11 @@ class Ball extends Entity {
 
                 // check if ball is at the bottom of the cup
                 if (
-                    this.pos.y + this.radius === this.holePos.y &&
+                    Math.abs(this.pos.y + this.radius - this.holePos.y) < 1 &&
                     Math.abs(this.holePos.x - this.pos.x) <= HOLE_WIDTH - this.radius
                 ) {
                     this.holed = true;
                 }
-                
-                this.pos.print('fixed pos')
 
                 break;
             }
@@ -130,6 +136,9 @@ class Ball extends Entity {
 
     update(ctx: CanvasRenderingContext2D, gameInfo: { entities: Array<Entity> }) {
         const { entities } = gameInfo;
+
+        if (this.vel.magnitude > this.maxSpeed)
+            this.vel = this.vel.scalarMultiply(this.maxSpeed / this.vel.magnitude);
 
         this.pos = this.pos.add(this.vel);
         this.vel = this.vel.add(this.accel);
