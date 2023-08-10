@@ -39,6 +39,10 @@ class Vector2d {
     dot(v: Vector2d) {
         return this.x * v.x + this.y * v.y;
     }
+
+    print(label: string) {
+        console.log(label + ': (' + this.x + ', ' + this.y + ')');
+    }
 };
 
 export default Vector2d;

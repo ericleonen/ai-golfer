@@ -1,46 +1,67 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef } from "react";
 import Ball from "../physics/Ball";
 import Block from "../physics/Block";
 import Entity from "../physics/Entity";
 import { createHoleBase } from "../physics/HoleBase";
 
+const COURSE_HEIGHT: number = 100;
+const BALL_RADIUS: number = 10;
+
 const Game = () => {
     const canvas = useRef<HTMLCanvasElement | any>();
 
     const init = (canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
-        const holeBase = createHoleBase({ x: 760, y: canvas.height - 100 }, canvas);
+        const { holeBase, holePos } = createHoleBase({ x: canvas.width - 200, y: canvas.height - COURSE_HEIGHT }, canvas);
 
         const ball = new Ball(
-            { x: 100, y: canvas.height - 500 },
-            10
+            { x: 100, y: canvas.height - COURSE_HEIGHT - BALL_RADIUS },
+            BALL_RADIUS,
+            holePos
         );
 
-        const wall = new Block(
-            { x: 720, y: canvas.height - 100 - 500 },
-            { height: 500, width: 100 }
+        const ceiling = new Block(
+            { x: 0, y: 0 },
+            { height: 50, width: canvas.width }
+        );
+
+        const leftWall = new Block(
+            { x: 0, y: 50 },
+            { height: canvas.height - 50 - COURSE_HEIGHT, width: 50 }
+        );
+
+        const rightWall = new Block(
+            { x: canvas.width - 50, y: 50 },
+            { height: canvas.height - 50 - COURSE_HEIGHT, width: 50 }
         );
         
-        const entities = [
+        const course = [
             ...holeBase,
-            ball
+            ceiling,
+            leftWall,
+            rightWall
         ];
     
-        update(entities, canvas, ctx);
+        update(ball, course, canvas, ctx);
     };
 
-    const update = (entities: Array<Entity>, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        entities.forEach(entity => {
-            if (entity instanceof Ball) {
-                entity.update(
-                    ctx, 
-                    { entities: entities.filter(entity => entity instanceof Block) }
-                );
-            }
-            else entity.update(ctx);
-        });
+    const update = (ball: Ball, course: Array<Entity>, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
+        if (ball.holed) {
+            console.log('ball is holed!');
+            return;
+        }
         
-        requestAnimationFrame(() => update(entities, canvas, ctx));
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        ball.update(
+            ctx, 
+            { 
+                entities: course.filter(entity => entity instanceof Block)
+            }
+        );
+
+        course.forEach(entity => entity.update(ctx));
+        
+        requestAnimationFrame(() => update(ball, course, canvas, ctx));
     };
 
     useEffect(() => {

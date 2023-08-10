@@ -1,7 +1,7 @@
 import Block from "./Block";
-import { VectorObject } from "./Vector2d";
+import Vector2d, { VectorObject } from "./Vector2d";
 
-const HOLE_WIDTH: number = 40;
+export const HOLE_WIDTH: number = 40;
 const HOLE_HEIGHT: number = 50;
 
 export const createHoleBase = ({ x, y }: VectorObject, canvas: HTMLCanvasElement) => {
@@ -20,5 +20,8 @@ export const createHoleBase = ({ x, y }: VectorObject, canvas: HTMLCanvasElement
         { height: HOLE_HEIGHT, width: HOLE_WIDTH }
     )
 
-    return [left, right, bottom];
+    return { 
+        holeBase: [left, right, bottom],
+        holePos: new Vector2d(x, y + HOLE_HEIGHT) // this is the bottom of the cup
+    };
 };

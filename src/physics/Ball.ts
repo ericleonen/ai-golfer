@@ -1,31 +1,38 @@
 import Block from "./Block";
 import Entity from "./Entity";
+import { HOLE_WIDTH } from "./HoleBase";
 import { basicallyZero, sameSign, sign } from "./utils";
 import Vector2d, { VectorObject } from "./Vector2d";
 
 class Ball extends Entity {
     pos: Vector2d;
     radius: number;
+    holePos: Vector2d;
 
     vel: Vector2d;
     accel: Vector2d;
 
     elasticity: number;
 
-    constructor({ x, y }: VectorObject, radius: number) {
+    holed: boolean;
+
+    constructor({ x, y }: VectorObject, radius: number, holePos: Vector2d) {
         super();
         
         this.pos = new Vector2d(x, y);
         this.radius = radius;
+        this.holePos = holePos;
 
-        this.vel = new Vector2d(5.56, 0);
+        this.vel = new Vector2d(5.4, -18);
         this.accel = new Vector2d(0, .15);
         this.elasticity = 0.5;
+
+        this.holed = false;
     }
 
     draw(ctx: CanvasRenderingContext2D) {
         ctx.beginPath();
-        ctx.lineWidth = 3;
+        ctx.lineWidth = 4;
         ctx.arc(this.pos.x, this.pos.y, this.radius, 0, 2 * Math.PI);
         ctx.stroke();
     }
@@ -70,11 +77,11 @@ class Ball extends Entity {
             const normal = v2.subtract(v2onV1);
 
             if (normal.magnitude <= this.radius) {
-
+                this.pos.print('orig pos')
                 // fix over-pos
                 const oppVelUnit = this.vel.scalarMultiply(-1 / this.vel.magnitude);
                 const z = oppVelUnit.projectOnto(normal);
-                const a = this.vel.scalarMultiply((this.radius - normal.magnitude) / this.vel.magnitude);
+                const a = this.vel.scalarMultiply((this.radius + normal.magnitude * sign(this.vel.dot(normal))) / this.vel.magnitude);
                 const c = !basicallyZero(z.x) ? a.x / z.x : a.y / z.y;
                 const o = oppVelUnit.scalarMultiply(c);
                 
@@ -103,6 +110,17 @@ class Ball extends Entity {
                 this.vel = velOnV1.subtract(this.vel.subtract(this.accel)).add(velOnV1).scalarMultiply(this.elasticity);
             
                 handled = true;
+
+                // check if ball is at the bottom of the cup
+                if (
+                    this.pos.y + this.radius === this.holePos.y &&
+                    Math.abs(this.holePos.x - this.pos.x) <= HOLE_WIDTH - this.radius
+                ) {
+                    this.holed = true;
+                }
+                
+                this.pos.print('fixed pos')
+
                 break;
             }
         }
