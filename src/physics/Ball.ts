@@ -1,7 +1,7 @@
 import Block from "./Block";
 import Entity from "./Entity";
 import { HOLE_WIDTH } from "./HoleBase";
-import { basicallyZero, sameSign, sign, toRad } from "./utils";
+import { sameSign, sign, toRad, rand } from "./utils";
 import Vector2d, { VectorObject } from "./Vector2d";
 
 class Ball extends Entity {
@@ -17,6 +17,10 @@ class Ball extends Entity {
 
     holed: boolean;
 
+    deadCount: number;
+    deadThreshold: number;
+    dead: boolean;
+
     constructor({ x, y }: VectorObject, radius: number, holePos: Vector2d) {
         super();
         
@@ -31,7 +35,16 @@ class Ball extends Entity {
 
         this.holed = false;
 
-        this.launch(13.9, 90);
+        this.deadCount = 10;
+        this.deadThreshold = 0.2;
+        this.dead = false;
+    }
+
+    randomLaunch() {
+        this.launch(
+            rand(0, this.maxSpeed),
+            rand(0, 180)
+        );
     }
 
     launch(speed: number, theta: number) {
@@ -95,12 +108,6 @@ class Ball extends Entity {
 
                 this.pos = this.pos.add(displacement);
 
-                if (displacement.magnitude > 5) {
-                    normal.print('normal');
-                    a.print('a');
-                    displacement.print('displacement');
-                }
-
                 // fix over-vel
                 this.vel.y = Math.sqrt(
                     Math.abs(
@@ -147,6 +154,13 @@ class Ball extends Entity {
             if (this.handleEdgeCollision(entity)) return;
             if (this.handleVertexCollision(entity)) return;
         });
+
+        if (this.deadCount === 0) 
+            this.dead = true;
+        else if (Math.abs(this.vel.magnitude) < this.deadThreshold) 
+            this.deadCount--;
+        else 
+            this.deadCount = 10;
 
         this.draw(ctx);
     }

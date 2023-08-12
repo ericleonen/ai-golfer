@@ -3,6 +3,7 @@ import Ball from "../physics/Ball";
 import Block from "../physics/Block";
 import Entity from "../physics/Entity";
 import { createHoleBase } from "../physics/HoleBase";
+import Vector2d from "../physics/Vector2d";
 
 const COURSE_HEIGHT: number = 100;
 const BALL_RADIUS: number = 15;
@@ -14,7 +15,7 @@ const Game = () => {
         const { holeBase, holePos } = createHoleBase({ x: canvas.width - 200, y: canvas.height - COURSE_HEIGHT }, canvas);
 
         const ball = new Ball(
-            { x: 100, y: canvas.height - COURSE_HEIGHT - BALL_RADIUS },
+            { x: 100, y: canvas.height - COURSE_HEIGHT - BALL_RADIUS - 1 },
             BALL_RADIUS,
             holePos
         );
@@ -46,8 +47,16 @@ const Game = () => {
 
     const update = (ball: Ball, course: Array<Entity>, canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D) => {
         if (ball.holed) {
-            console.log('ball is holed!');
+            console.log('holed!');
             return;
+        }
+        else if (ball.dead) {
+            // ball.pos = new Vector2d(100, canvas.height - COURSE_HEIGHT - BALL_RADIUS);
+
+            ball.dead = false;
+            ball.deadCount = 10;
+
+            ball.randomLaunch();
         }
         
         ctx.clearRect(0, 0, canvas.width, canvas.height);

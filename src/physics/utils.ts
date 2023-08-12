@@ -14,3 +14,7 @@ export const sign = (x: number) => {
 }
 
 export const toRad = (degrees: number) => degrees * Math.PI / 180;
+
+export function rand(min: number, max: number) {
+    return Math.random() * (max - min) + min;
+};
